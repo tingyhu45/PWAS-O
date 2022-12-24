@@ -17,7 +17,33 @@ For this Omnibus PWAS, we：
 * [BGZIP](http://www.htslib.org/doc/bgzip.html)
 * [TABIX](http://www.htslib.org/doc/tabix.html) 
 * Python 3.5 modules/libraries: pandas, numpy, scipy, sklearn, statsmodels
- 
+	* using conda
+	```
+	# create the environment tigarenv
+	conda create --name tigarenv python=3.5 pandas numpy scipy scikit-learn statsmodels
+	# deactivate the conda environment
+	conda deactivate
+	# activate the environment
+	conda activate tigarenv
+	# set the PYTHONPATH
+	export PYTHONPATH=${CONDA_PREFIX}/lib/python3.5/site-packages/:$PYTHONPATH
+	```
+	* using pip
+	```
+	# install pip
+	# install virtualenv
+	python3 -m pip install --user virtualenv
+	# cd to preferred install_directory
+	cd ${install_dir}
+	# create the virtual environment tigarenv in the current directory
+	python3 -m virtualenv tigarenv --python=python3.5
+	# activate the environment
+	source ${install_dir}/tigarenv/bin/activate
+	# install the packages
+	python3 -m pip install numpy==1.15.2 pandas==0.23.4 scikit-learn==0.20.0 scipy==1.1.0 statsmodels==0.9.0
+	# deactivate the environment
+	deactivate
+ 	```
  
 ### 2. Download [FUSION tool](http://gusevlab.org/projects/fusion/) and complete its software setup
 
