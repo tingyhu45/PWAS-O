@@ -1,5 +1,6 @@
 # PWAS-O: Omnibus proteome-wide association study
 
+![image](https://github.com/tingyhu45/PWAS-O/blob/main/Fig.2.pdf)
 
 For this Omnibus PWAS, we：
 * use [FUSION software](http://gusevlab.org/projects/fusion/) to train protein imputation model with the most predictive model out of penalized linear regression model with Elastic-Net penalty and LASSO penalty, regular linear regression model with best unbiased linear predictor (BLUP), single variant model with Top pQTL (Top 1).
