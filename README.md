@@ -189,7 +189,7 @@ ${TIGAR_dir}/TIGAR_TWAS.sh \
 ```
 
 ### 5. Combine p-values using ACAT-O test
-Lanuch R and load the package
+Launch R and load the package
 ````
 library(ACAT)
 
