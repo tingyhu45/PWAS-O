@@ -37,7 +37,7 @@ FUSION_gene_info=Exp_fusion_train_GeneInfo.txt
 Zscore=Exp_GWAS_Zscore.txt
 
 ############
-## LD file 
+## Require input LD covariance file
 LD=$LD_covariance_file
 
 
