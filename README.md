@@ -8,7 +8,10 @@ For this Omnibus PWAS, we：
 * use [FUSION software](http://gusevlab.org/projects/fusion/) to train protein imputation model and estimate pQTL weights with the most predictive model out of penalized linear regression model with Elastic-Net penalty and LASSO penalty, regular linear regression model with best unbiased linear predictor (BLUP), single variant model with Top pQTL (Top 1).
 * use [TIGAR tool](https://github.com/yanglab-emory/TIGAR) to train protein imputation model and estimate pQTL weights with a nonparamtric Bayesian latent Dirchlet Process Regression model (DPR) as well as penalized linear regression model with Elastic-Net penalty (as implemented by PrediXcan).
 * use TIGAR to conduct the summary-level association test integrating pQTL weights and GWAS summary statistics.
-* apply R pacakage [ACAT](https://github.com/yaowuliu/ACAT) to combine the PWAS p-values from different tools based on the Cauchy Association test.
+* apply R package [ACAT](https://github.com/yaowuliu/ACAT) to combine the PWAS p-values from different tools based on the Cauchy Association test.
+
+### Reference
+[Hu T et al. Omnibus Proteome-Wide Association Study (PWAS-O) Identified 43 Risk Genes for Alzheimer’s Disease Dementia. medrxiv; 2022.](https://www.medrxiv.org/content/10.1101/2022.12.25.22283936v2)
 
 
 # Getting started
@@ -64,14 +67,16 @@ install.packages(c('glmnet','methods'))
 
 # Example usage
 
-### 1. Train protein imputation models (DPR, Elastic-Net) using TIGAR tool
+## Step 1. Train protein imputation models 
 
-#### (1) Genotype data: vcf or dosage file
-#### (2) Training Sample ID file: headerless, single-column file containing sampleIDs to use
-#### (3) protein abundance file:
+### TIGAR tool for DPR and Elastic-Net model
+
+* (1) Genotype data: vcf or dosage file
+* (2) Training Sample ID file: headerless, single-column file containing sampleIDs to use
+* (3) protein abundance file:
 *  First 5 columns are _Chromosome number, Gene start position, Gene end position, Target gene ID, Gene name (optional, could be the same as Target gene ID)_
 
-##### train nonparametric Bayesian DPR model
+#### train nonparametric Bayesian DPR model
 ```
 # Setup input file paths
 Protein_Exp_train_file="${TIGAR_dir}/ExampleData/protein_exp.txt"
@@ -98,7 +103,7 @@ ${TIGAR_dir}/TIGAR_Model_Train.sh \
 --TIGAR_dir ${TIGAR_dir}
 ```
 
-##### train Elastic-Net model
+#### train Elastic-Net model
 ```
 Protein_Exp_train_file="${TIGAR_dir}/ExampleData/protein_exp.txt"
 train_sample_ID_file="${TIGAR_dir}/ExampleData/sampleID.txt"
@@ -122,7 +127,8 @@ ${TIGAR_dir}/TIGAR_Model_Train.sh \
 --TIGAR_dir ${TIGAR_dir}
 ```
 
-### 2. Train protein imputation models using FUSION tool
+
+### FUSION tool
 FUSION computes pQTL weights based on binary file per gene
 ```
 Rscript ${FUSION_dir}/FUSION.compute_weights.R \
@@ -135,33 +141,11 @@ Rscript ${FUSION_dir}/FUSION.compute_weights.R \
 	--models top1,lasso,enet,blup
  ```
 
-### 3. Generate LD Covariance file based on reference panel using TIGAR 
-Reference LD genotype covaraince file can be generated using reference genotype data, which should be generated per chromosome with corresponding genome segmentation block anntoation file.
-LD files for PWAS should be made with the same reference data used for model training.
 
-LD files for TWAS should be made with the same reference data used for model training.
-* `--genom_block`: Path to genome segmentation block annotation based on LD
-* `--sampleID`: Path to a file with sampleIDs to be used for generating reference LD files.
-* `--genofile`: Path to the reference genotype file (bgzipped and tabixed). It is recommended that genotype files with data for multiple chromosomes be split into per-chromosome files.
-```
-block_annotation="${TIGAR_dir}/ExampleData/example_genome_block_CHR1.txt"
-sample_id="${TIGAR_dir}/sampleID.txt"
 
-${TIGAR_dir}/TIGAR_LD.sh \
---genome_block ${block_annotation} \
---sampleID ${sample_id}
---chr 1 \
---genofile ${genofile} \
---genofile_type vcf \
---format GT \
---maf 0.01 \
---thread 2 \
---out_dir ${out_dir} \
---TIGAR_dir ${TIGAR_dir}
-```
+## Step 2. Conduct summary-level PWAS using TIGAR 
 
-### 4. Conduct summary-level PWAS using TIGAR 
-We integrate pQTL weights from protein imputation models with GWAS summary statistics to conduct the gene-based association test
+#### We integrate pQTL weights from protein imputation models with GWAS summary statistics to conduct the gene-based association test
 
 * `--asso`: `2` summary-level TWAS using GWAS summary Z-score statistics and reference LD
 * `--weight`: Path to SNP weight (eQTL effect size) file
@@ -188,9 +172,41 @@ ${TIGAR_dir}/TIGAR_TWAS.sh \
 --TIGAR_dir ${TIGAR_dir}
 ```
 
-### 5. Combine p-values using ACAT-O test
+
+Here reference LD genotype covariance file can be generated using reference genotype data, which should be generated per chromosome with the corresponding genome segmentation block annotation file.
+LD files for PWAS should be made with the same reference data used for model training.
+
+LD files for TWAS should be made with the same reference data used for model training.
+* `--genom_block`: Path to genome segmentation block annotation based on LD
+* `--sampleID`: Path to a file with sampleIDs to be used for generating reference LD files.
+* `--genofile`: Path to the reference genotype file (bgzipped and tabixed). It is recommended that genotype files with data for multiple chromosomes be split into per-chromosome files.
+```
+block_annotation="${TIGAR_dir}/ExampleData/example_genome_block_CHR1.txt"
+sample_id="${TIGAR_dir}/sampleID.txt"
+
+${TIGAR_dir}/TIGAR_LD.sh \
+--genome_block ${block_annotation} \
+--sampleID ${sample_id}
+--chr 1 \
+--genofile ${genofile} \
+--genofile_type vcf \
+--format GT \
+--maf 0.01 \
+--thread 2 \
+--out_dir ${out_dir} \
+--TIGAR_dir ${TIGAR_dir}
+```
+
+## Step 3. Combine p-values from three methods using ACAT-O test
+Install the ACAT package in R
+
+```
+library(devtools)
+devtools::install_github("yaowuliu/ACAT")
+```
+
 Launch R and load the package
-````
+```
 library(ACAT)
 
 ACAT_withNA = function(p_vec){
@@ -199,3 +215,21 @@ ACAT_withNA = function(p_vec){
   
 }
 ```
+
+## Step 4. Analyze the PWAS-O results
+* Generate the Manhattan plot
+* Q-Q plot
+* pQTL weight plots by different methods
+* Use [GIFT](https://yuanzhongshang.github.io/GIFT/) tool to further conduct PWAS risk gene fine mapping
+
+All the example scripts and data can be found Example/
+
+
+# Data availability
+
+refer to this [page](https://doi.org/10.7303/syn53498818)
+
+(1) Reference LD covariance files 
+
+(2) pQTL weight files from protein imputation models, and the PWAS results
+
