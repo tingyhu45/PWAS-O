@@ -222,7 +222,7 @@ ACAT_withNA = function(p_vec){
 * pQTL weight plots by different methods
 * Use [GIFT](https://yuanzhongshang.github.io/GIFT/) tool to further conduct PWAS risk gene fine mapping
 
-##### The example scripts and sample data can be found at https://github.com/tingyhu45/PWAS-O/tree/main/Example
+The example scripts and sample data can be found at https://github.com/tingyhu45/PWAS-O/tree/main/Example
 * Scripts for simulation of protein abundance data, and the replication of step 1-4
 * Example data files in step 1-4
 
